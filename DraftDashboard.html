@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chumpball | Live Draft Board</title>
+<style>
+:root{color-scheme:light;--ink:#1e2927;--muted:#67736f;--line:#d9e0dc;--paper:#f3f5f1;--white:#fff;--teal:#12675e;--teal-soft:#e1f0eb;--lime:#d8ed83;--coral:#c85c49;--gray:#e0e3e2;--shadow:0 12px 30px rgba(26,43,38,.08)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.45 "Segoe UI",Tahoma,sans-serif}
+button,input,select{font:inherit}
+.shell{max-width:1600px;margin:auto;padding:28px clamp(18px,3vw,48px) 40px}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:24px;border-bottom:1px solid var(--line);padding-bottom:22px}
+.brand{display:flex;align-items:baseline;gap:16px;min-width:0}
+h1{font:700 38px/1 Georgia,"Times New Roman",serif;letter-spacing:.01em;margin:0;color:var(--teal)}
+.kicker{font-size:12px;font-weight:700;color:var(--muted)}
+.live{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px;white-space:nowrap}
+.live-dot{width:9px;height:9px;border-radius:50%;background:#438c52;box-shadow:0 0 0 4px rgba(67,140,82,.12)}
+.controls{display:flex;align-items:end;gap:14px;flex-wrap:wrap;padding:20px 0 18px}
+.control{display:grid;gap:6px;min-width:180px}
+.control label,.search label{font-size:11px;font-weight:800;color:var(--muted)}
+select,input{height:40px;border:1px solid #cbd5d0;border-radius:5px;background:var(--white);color:var(--ink);padding:0 12px;outline:none}
+select:focus,input:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(18,103,94,.12)}
+.search{display:grid;gap:6px;flex:1 1 240px;max-width:420px}
+.refresh{height:40px;border:0;border-radius:5px;background:var(--teal);color:white;font-weight:700;padding:0 20px;cursor:pointer}
+.refresh:hover{background:#0d574f}
+.summary{display:grid;grid-template-columns:minmax(260px,1.35fr) repeat(2,minmax(160px,.7fr));gap:14px;margin:4px 0 24px}
+.summary-item{min-height:105px;background:var(--white);border:1px solid var(--line);border-radius:6px;padding:17px 20px;box-shadow:var(--shadow)}
+.summary-item.primary{background:var(--teal);color:white;border-color:var(--teal)}
+.summary-label{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.primary .summary-label{color:#cae5dc}
+.summary-main{font:700 25px/1.2 Georgia,"Times New Roman",serif;margin-top:8px;overflow-wrap:anywhere}
+.summary-sub{font-size:13px;margin-top:5px;color:var(--muted)}
+.primary .summary-sub{color:#d3e9e2}
+.board-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:10px}
+h2{font-size:18px;margin:0;font-weight:750}
+.updated{color:var(--muted);font-size:12px;text-align:right}
+.message{display:none;padding:12px 14px;border-radius:5px;margin:10px 0 14px;background:#f8e7e3;color:#873c30;border:1px solid #e6bdb5}
+.board-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,390px);gap:20px;align-items:start}
+.results-panel{min-width:0}
+.draft-board-scroll{overflow:auto}
+.draft-grid{--draft-columns:60px minmax(160px,2fr) 56px 90px 80px;display:grid;grid-template-columns:var(--draft-columns);align-items:center;min-width:620px}
+.draft-grid-header{position:sticky;top:0;z-index:2;min-height:42px;background:#e8eeea;color:#52615c}
+.draft-grid-header span{padding:0 12px;font-size:10px;font-weight:800;letter-spacing:.04em;white-space:nowrap}
+.owner-groups{display:grid;gap:14px;min-width:620px;padding-top:12px}
+.owner-group-card{overflow:hidden;background:var(--white);border:1px solid var(--line);border-radius:6px;box-shadow:var(--shadow)}
+.owner-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#e3ebe6;color:var(--teal);font-size:12px;font-weight:800;text-transform:uppercase}
+.owner-count{color:var(--muted);font-size:11px;font-weight:600;text-transform:none}
+.drafted-player-row{min-height:43px;border-top:1px solid #e9eeeb}
+.drafted-player-row.guard{background:#e5f2f8}
+.drafted-player-row.forward{background:#ebf4e6}
+.drafted-player-row.center{background:#f9f1e0}
+.drafted-player-row:hover{filter:brightness(.975)}
+.drafted-player-row span{overflow:hidden;padding:0 12px;text-overflow:ellipsis;white-space:nowrap}
+.drafted-player-row span.number{text-align:right;font-variant-numeric:tabular-nums}
+.drafted-player-row span.player-name{font-weight:700}
+.empty{padding:42px 18px;text-align:center;color:var(--muted);background:var(--white);border:1px solid var(--line);border-radius:6px}
+.leaderboard-panel{min-width:0}
+.leaderboard-panel h2{margin-bottom:10px}
+.leaderboard-list{display:grid;gap:9px;align-content:start}
+.leaderboard-card{background:var(--white);border:1px solid var(--line);border-radius:5px;margin-bottom:9px;overflow:hidden}
+.leaderboard-title{padding:8px 11px;background:#e8eeea;color:#52615c;font-size:10px;font-weight:800;letter-spacing:.035em;text-transform:uppercase}
+.leaderboard-card ol{list-style:none;margin:0;padding:0}
+.leaderboard-card li{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:32px;padding:4px 10px;border-top:1px solid #edf0ee}
+.leader-rank{color:var(--muted);font-size:11px;font-weight:750}
+.leader-player{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;font-weight:700}
+.leader-owner{display:block;color:var(--muted);font-size:11px;font-weight:400}
+.leader-score{font-size:13px;font-weight:750;font-variant-numeric:tabular-nums}
+.leader-empty{padding:12px;color:var(--muted);font-size:12px}
+.foot{font-size:12px;color:var(--muted);margin-top:13px}
+@media(max-width:980px){.board-layout{grid-template-columns:1fr}.leaderboard-panel{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.leaderboard-panel h2{grid-column:1/-1;margin:0}.leaderboard-card{margin:0}}
+@media(max-width:600px){.shell{padding-top:18px}.topline{align-items:flex-start;flex-direction:column;gap:12px}h1{font-size:32px}.summary{grid-template-columns:1fr 1fr}.summary-item.primary{grid-column:1/-1}.controls{align-items:stretch}.control{min-width:calc(50% - 8px)}.search{max-width:none;min-width:100%}.refresh{width:100%}.board-head{align-items:flex-start;flex-direction:column}.updated{text-align:left}.leaderboard-panel{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="topline">
+    <div class="brand"><h1>Chumpball</h1><span class="kicker">LIVE DRAFT BOARD</span></div>
+    <div class="live"><span class="live-dot" id="liveDot"></span><span id="connectionState">Connecting</span></div>
+  </header>
+  <section class="controls" aria-label="Draft board controls">
+    <div class="control"><label for="databaseSelect">SEASON DATABASE</label><select id="databaseSelect"></select></div>
+    <div class="control"><label for="collectionSelect">LEAGUE</label><select id="collectionSelect"></select></div>
+    <div class="search"><label for="playerSearch">FILTER PLAYERS</label><input id="playerSearch" type="search" placeholder="Search player name"></div>
+    <button class="refresh" id="refreshButton" type="button">Refresh</button>
+  </section>
+  <section class="summary" aria-label="Draft status">
+    <div class="summary-item primary"><div class="summary-label">Up to pick</div><div class="summary-main" id="ownerUp">Add owners to draft order</div><div class="summary-sub"><span id="roundLabel">Round 1</span> · Pick <span id="pickLabel">1</span></div></div>
+    <div class="summary-item"><div class="summary-label">Drafted</div><div class="summary-main" id="draftedCount">0</div><div class="summary-sub">players assigned</div></div>
+    <div class="summary-item"><div class="summary-label">Player pool</div><div class="summary-main" id="totalCount">0</div><div class="summary-sub">players available</div></div>
+  </section>
+  <div class="message" id="message"></div>
+  <div class="board-layout">
+    <section class="results-panel" aria-label="Drafted players">
+      <div class="board-head"><h2>Draft results</h2><div class="updated" id="updatedAt">Waiting for first update</div></div>
+      <div class="draft-board-scroll">
+        <div class="draft-grid draft-grid-header" role="row">
+          <span role="columnheader">PICK</span><span role="columnheader">PLAYER</span><span role="columnheader">AGE</span><span role="columnheader">POSITION</span><span role="columnheader">TEAM</span>
+        </div>
+        <div id="playerRows" class="owner-groups" role="rowgroup"><div class="empty">Loading draft results…</div></div>
+      </div>
+    </section>
+    <aside class="leaderboard-panel" aria-label="Draft leaderboards">
+      <h2>Leaderboards</h2>
+      <div id="leaderboards" class="leaderboard-list"><div class="leaderboard-card"><div class="leader-empty">Loading leaderboards…</div></div></div>
+    </aside>
+  </div>
+  <div class="foot">Live updates every 2 seconds · Draft changes appear automatically</div>
+</main>
+<script>
+const databaseSelect = document.getElementById('databaseSelect');
+const collectionSelect = document.getElementById('collectionSelect');
+const playerSearch = document.getElementById('playerSearch');
+const playerRows = document.getElementById('playerRows');
+const message = document.getElementById('message');
+let latestState = null;
+let loading = false;
+let initializing = false;
+
+function showMessage(text) {
+  message.textContent = text || '';
+  message.style.display = text ? 'block' : 'none';
+}
+
+async function getJson(url) {
+  const response = await fetch(url, { cache: 'no-store' });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  return data;
+}
+
+async function loadDatabases() {
+  const data = await getJson('/api/databases');
+  const oldValue = databaseSelect.value;
+  databaseSelect.replaceChildren();
+  for (const name of data.databases) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name.replace(/\.db$/i, '');
+    databaseSelect.append(option);
+  }
+  if (!data.databases.length) throw new Error('No season databases found in FantasyStats/data.');
+  const currentSeasonDb = `${new Date().getFullYear()}.db`;
+  databaseSelect.value = data.databases.includes(oldValue) ? oldValue : (data.databases.includes(currentSeasonDb) ? currentSeasonDb : data.databases[0]);
+}
+
+async function loadCollections() {
+  const data = await getJson(`/api/collections?database=${encodeURIComponent(databaseSelect.value)}`);
+  const oldValue = collectionSelect.value;
+  collectionSelect.replaceChildren();
+  for (const name of data.collections) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    collectionSelect.append(option);
+  }
+  collectionSelect.value = data.collections.includes(oldValue) ? oldValue : (data.collections.includes('NBA') ? 'NBA' : data.collections[0]);
+}
+
+function formatNumber(value) {
+  return value === null || value === undefined || value === '' ? '—' : Number(value).toLocaleString();
+}
+
+function renderPlayers(players, owners) {
+  const filter = playerSearch.value.trim().toLocaleLowerCase();
+  const filtered = players.filter(player => player.drafted && (player.player || '').toLocaleLowerCase().includes(filter));
+  playerRows.replaceChildren();
+  if (!filtered.length) {
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = filter ? 'No matching drafted players.' : 'No players drafted yet.';
+    playerRows.append(empty);
+    return;
+  }
+
+  const sortByPick = (left, right) => (left.draft_pos ?? Number.MAX_SAFE_INTEGER) - (right.draft_pos ?? Number.MAX_SAFE_INTEGER) || (left.player || '').localeCompare(right.player || '');
+  const groups = [];
+  const assignedOwners = new Set();
+  for (const owner of owners || []) {
+    const ownerKey = owner.toLocaleLowerCase();
+    assignedOwners.add(ownerKey);
+    const ownerPlayers = filtered.filter(player => (player.owner || '').toLocaleLowerCase() === ownerKey).sort(sortByPick);
+    if (ownerPlayers.length) groups.push({ owner, players: ownerPlayers });
+  }
+
+  const additionalOwners = [...new Set(filtered.map(player => player.owner || '').filter(owner => !assignedOwners.has(owner.toLocaleLowerCase())))];
+  for (const owner of additionalOwners) {
+    const ownerPlayers = filtered.filter(player => (player.owner || '') === owner).sort(sortByPick);
+    groups.push({ owner: owner || 'Unassigned owner', players: ownerPlayers });
+  }
+
+  for (const group of groups) {
+    const ownerCard = document.createElement('section');
+    ownerCard.className = 'owner-group-card';
+    const heading = document.createElement('header');
+    heading.className = 'owner-group-heading';
+    const ownerName = document.createElement('span');
+    ownerName.textContent = group.owner;
+    const count = document.createElement('span');
+    count.className = 'owner-count';
+    count.textContent = `${group.players.length} ${group.players.length === 1 ? 'player' : 'players'}`;
+    heading.append(ownerName, count);
+    ownerCard.append(heading);
+
+    for (const player of group.players) {
+      const row = document.createElement('div');
+      row.className = 'drafted-player-row draft-grid';
+      const position = (player.elig_pos || '').toUpperCase();
+      if (position.includes('G')) row.classList.add('guard');
+      else if (position.includes('F')) row.classList.add('forward');
+      else if (position.includes('C')) row.classList.add('center');
+      const values = [formatNumber(player.draft_pos), player.player, formatNumber(player.age), player.elig_pos || '—', player.team || '—'];
+      values.forEach((value, index) => {
+        const cell = document.createElement('span');
+        cell.textContent = value;
+        if ([0, 2].includes(index)) cell.classList.add('number');
+        if (index === 1) cell.classList.add('player-name');
+        row.append(cell);
+      });
+      ownerCard.append(row);
+    }
+    playerRows.append(ownerCard);
+  }
+}
+
+function renderLeaderboards(leaderboards) {
+  const container = document.getElementById('leaderboards');
+  container.replaceChildren();
+  for (const board of leaderboards || []) {
+    const card = document.createElement('section');
+    card.className = 'leaderboard-card';
+    const title = document.createElement('div');
+    title.className = 'leaderboard-title';
+    title.textContent = board.title;
+    card.append(title);
+
+    if (!board.players || board.players.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'leader-empty';
+      empty.textContent = 'No drafted stats yet.';
+      card.append(empty);
+    } else {
+      const list = document.createElement('ol');
+      board.players.forEach((player, index) => {
+        const item = document.createElement('li');
+        const rank = document.createElement('span');
+        rank.className = 'leader-rank';
+        rank.textContent = String(index + 1).padStart(2, '0');
+        const detail = document.createElement('span');
+        detail.className = 'leader-player';
+        detail.textContent = player.player;
+        const owner = document.createElement('span');
+        owner.className = 'leader-owner';
+        owner.textContent = player.owner || '—';
+        detail.append(owner);
+        const score = document.createElement('span');
+        score.className = 'leader-score';
+        score.textContent = board.key === 'avg'
+          ? Number(player.score).toLocaleString(undefined, { maximumFractionDigits: 2 })
+          : formatNumber(player.score);
+        item.append(rank, detail, score);
+        list.append(item);
+      });
+      card.append(list);
+    }
+    container.append(card);
+  }
+}
+
+async function refreshBoard() {
+  if (loading || !databaseSelect.value || !collectionSelect.value) return;
+  loading = true;
+  try {
+    const query = new URLSearchParams({ database: databaseSelect.value, collection: collectionSelect.value });
+    const state = await getJson(`/api/state?${query}`);
+    latestState = state;
+    document.getElementById('ownerUp').textContent = state.ownerUp || 'Add owners to draft order';
+    document.getElementById('roundLabel').textContent = `Round ${state.round}`;
+    document.getElementById('pickLabel').textContent = formatNumber(state.pickNumber);
+    document.getElementById('draftedCount').textContent = formatNumber(state.draftedPlayers);
+    document.getElementById('totalCount').textContent = formatNumber(state.totalPlayers);
+    document.getElementById('updatedAt').textContent = `Updated ${new Date(state.updatedAt).toLocaleTimeString()}`;
+    document.getElementById('connectionState').textContent = 'Live';
+    document.getElementById('liveDot').style.background = '#438c52';
+    showMessage('');
+    renderPlayers(state.players, state.owners);
+    renderLeaderboards(state.leaderboards);
+  } catch (error) {
+    document.getElementById('connectionState').textContent = 'Connection issue';
+    document.getElementById('liveDot').style.background = '#c85c49';
+    showMessage(error.message);
+  } finally {
+    loading = false;
+  }
+}
+
+async function initialize() {
+  if (initializing) return;
+  initializing = true;
+  try {
+    await loadDatabases();
+    await loadCollections();
+    await refreshBoard();
+  } catch (error) {
+    showMessage(error.message);
+    document.getElementById('connectionState').textContent = 'Unavailable';
+    document.getElementById('liveDot').style.background = '#c85c49';
+  } finally {
+    initializing = false;
+  }
+}
+
+databaseSelect.addEventListener('change', async () => {
+  try {
+    await loadCollections();
+    await refreshBoard();
+  } catch (error) {
+    showMessage(error.message);
+  }
+});
+collectionSelect.addEventListener('change', refreshBoard);
+playerSearch.addEventListener('input', () => renderPlayers(latestState?.players || [], latestState?.owners || []));
+document.getElementById('refreshButton').addEventListener('click', refreshBoard);
+initialize();
+setInterval(() => {
+  if (!databaseSelect.value) initialize();
+  else refreshBoard();
+}, 2000);
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ jobs:
       - name: Set up PowerShell
         # PowerShell is pre-installed, but this ensures it's ready
         shell: pwsh
+        run: $PSVersionTable.PSVersion
 
       - name: Run Scraper Script
         shell: pwsh

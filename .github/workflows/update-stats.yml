@@ -26,7 +26,7 @@ jobs:
           # Run the PowerShell script to update fantasy stats dashboard
           ./Update-FantasyStats.ps1
 
-      - name: Run Scraper Script
+      - name: Run Index Update Script
         shell: pwsh
         run: |
           # Run the PowerShell script to update the index page
@@ -36,5 +36,5 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add Dashboards/ data/
+          git add index.html Dashboards/ data/
           git diff --quiet && git diff --staged --quiet || (git commit -m "automated: update dashboard stats" && git push)

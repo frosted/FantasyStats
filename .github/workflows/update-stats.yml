@@ -1,0 +1,33 @@
+name: Update Stats Dashboard
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Runs every 6 hours (adjust as needed)
+  workflow_dispatch: # Allows you to run it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PowerShell
+        # PowerShell is pre-installed, but this ensures it's ready
+        shell: pwsh
+
+      - name: Run Scraper Script
+        shell: pwsh
+        run: |
+          # Run the PowerShell script to update fantasy stats dashboard
+          ./Update-FantasyStats.ps1
+
+      - name: Commit and push changes if dashboard updated
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add Dashboards/ data/
+          git diff --quiet && git diff --staged --quiet || (git commit -m "automated: update dashboard stats" && git push)

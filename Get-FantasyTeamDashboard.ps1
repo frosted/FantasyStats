@@ -249,11 +249,14 @@ tr.bench td{padding-bottom:6px}
 '@
 
         $box = {
-            param([string]$Heading, [string[]]$Headers, [string[]]$Aligns, [object[]]$Rows)
+            param([string]$Heading, [string[]]$Headers, [string[]]$Aligns, [object[]]$Rows, [int[]]$HtmlColumns = @())
             $th = for ($i = 0; $i -lt $Headers.Count; $i++) { "<th class=`"$($Aligns[$i])`">$(& $enc $Headers[$i])</th>" }
             $values = @($Rows | ForEach-Object { foreach ($cell in $_) { $cell } })
             $tr = for ($rowStart = 0; $rowStart -lt $values.Count; $rowStart += $Headers.Count) {
-                $td = for ($i = 0; $i -lt $Headers.Count; $i++) { "<td class=`"$($Aligns[$i])`">$(& $enc $values[$rowStart + $i])</td>" }
+                $td = for ($i = 0; $i -lt $Headers.Count; $i++) {
+                    $cell = if ($i -in $HtmlColumns) { [string] $values[$rowStart + $i] } else { & $enc $values[$rowStart + $i] }
+                    "<td class=`"$($Aligns[$i])`">$cell</td>"
+                }
                 "<tr>$($td -join '')</tr>"
             }
             "<div class=`"table-scroll`"><table><thead><tr><th class=`"c`" colspan=`"$($Headers.Count)`">$(& $enc $Heading)</th></tr><tr>$($th -join '')</tr></thead><tbody>$($tr -join '')</tbody></table></div>"
@@ -344,6 +347,7 @@ tr.bench td{padding-bottom:6px}
                     [pscustomobject]@{
                         Owner = $team.OwnerName
                         Player = $row.Player
+                        InjuryNote = $row.InjuryNote
                         Team = $row.Team
                         GP = $row.GP
                         AVG = $row.AVG
@@ -353,7 +357,14 @@ tr.bench td{padding-bottom:6px}
         ) | Sort-Object Owner, Player
         $injuredPlayersRows = @(
             foreach ($player in $injuredPlayerRows) {
-                , @($player.Owner, $player.Player, $player.Team, (& $f0 $player.GP), [string] $player.AVG)
+                $playerNameHtml = $(& $enc $player.Player)
+                if (-not [string]::IsNullOrWhiteSpace($player.InjuryNote)) {
+                    $playerNameHtml += " <span class=`"injury-marker`" title=`"$(& $enc $player.InjuryNote)`">*</span>"
+                }
+                else {
+                    $playerNameHtml += ' <span class="injury-marker">*</span>'
+                }
+                , @($player.Owner, $playerNameHtml, $player.Team, (& $f0 $player.GP), [string] $player.AVG)
             }
         )
         if ($injuredPlayersRows.Count -eq 0) {
@@ -368,7 +379,7 @@ tr.bench td{padding-bottom:6px}
             'Score', 'AVG', 'PTS', 'REB', 'AST', 'TOV' | ForEach-Object { & $leader $_ }
             '<div class="hdr">Injuries</div>'
             (& $box 'Most Injuries' @('Owner', 'Team A', 'Team B', 'Bench', 'Total') @('l', 'r', 'r', 'r', 'r') $mostInjuriesRows)
-            (& $box 'Injured Players' @('Owner', 'Player', 'Team', 'GP', 'AVG') @('l', 'l', 'l', 'r', 'r') $injuredPlayersRows)
+            (& $box 'Injured Players' @('Owner', 'Player', 'Team', 'GP', 'AVG') @('l', 'l', 'l', 'r', 'r') $injuredPlayersRows @(1))
         )
 
         $generatedAt = [DateTimeOffset]::Now.ToString('yyyy-MM-dd HH:mm:ss zzz', $inv)

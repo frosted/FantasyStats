@@ -7,6 +7,7 @@ param (
     [string] $League = 'NBA',
     [string] $DatabaseDirectory = (Join-Path $PSScriptRoot 'data'),
     [string] $DashboardPath = (Join-Path $PSScriptRoot "Dashboards\TeamDashboard_$Season.html"),
+    [string] $SideBetsPath = (Join-Path (Join-Path $PSScriptRoot 'data') "side-bets-$Season.json"),
     [switch] $SkipDashboard
 )
 
@@ -39,6 +40,6 @@ if (-not (Test-Path -LiteralPath $dashboardDirectory)) {
 }
 
 Get-FantasyTeamScoreFromDatabase -DatabasePath $databasePath -Collection $League |
-    New-FantasyWebDashboard -Path $DashboardPath -Title "Chumpball $($Season - 1) - $Season"
+    New-FantasyWebDashboard -Path $DashboardPath -Title "Chumpball $($Season - 1) - $Season" -SideBetsPath $SideBetsPath
 
 Write-Host "Dashboard written to $DashboardPath"

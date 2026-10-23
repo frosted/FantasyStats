@@ -1,0 +1,60 @@
+{
+  "season": 2027,
+  "bets": [
+    {
+      "bettors": ["Jay", "Ed"],
+      "bet": "Team A+B (Centers)",
+      "wager": "Not specified"
+    },
+    {
+      "bettors": ["Jayden", "Ed"],
+      "bet": "Team A+B",
+      "wager": "Shooting machine rental"
+    },
+    {
+      "bettors": ["Jun", "Ed"],
+      "bet": "Team A+B",
+      "wager": "Dinner"
+    },
+    {
+      "bettors": ["Chris", "Rhon"],
+      "bet": "Team A+B",
+      "wager": "Summit Garden"
+    },
+    {
+      "bettors": ["Chris", "Ed"],
+      "bet": "Team A+B",
+      "wager": "Osmow's"
+    },
+    {
+      "bettors": ["Rhon", "Ed"],
+      "bet": "Team A+B",
+      "wager": "Master Steaks"
+    },
+    {
+      "bettors": ["Jun", "Jay"],
+      "bet": "Team A",
+      "wager": "Master Steaks"
+    },
+    {
+      "bettors": ["Jay", "Chris"],
+      "bet": "Team B",
+      "wager": "Osmow's"
+    },
+    {
+      "bettors": ["Jun", "Chris"],
+      "bet": "Team B",
+      "wager": "Swiss Chalet"
+    },
+    {
+      "bettors": ["Jay", "Rhon"],
+      "bet": "Morant/Herro: Games",
+      "wager": "Dinner"
+    },
+    {
+      "bettors": ["Rhon", "Eymard"],
+      "bet": "Team A",
+      "wager": "Dinner"
+    }
+  ]
+}

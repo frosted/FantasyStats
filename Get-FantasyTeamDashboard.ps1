@@ -208,7 +208,8 @@ function New-FantasyWebDashboard {
     param(
         [Parameter(Mandatory, ValueFromPipeline)][pscustomobject]$TeamScore,
         [Parameter(Mandatory)][string]$Path,
-        [string]$Title = 'Chumpball Fantasy Basketball'
+        [string]$Title = 'Chumpball Fantasy Basketball',
+        [string]$SideBetsPath
     )
 
     begin {
@@ -228,6 +229,8 @@ body{font-family:Arial,"Segoe UI",sans-serif;font-size:13px;color:#000;margin:0;
 .table-scroll,.team-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-bottom:18px}
 .table-scroll table,.team-scroll table{margin-bottom:0}
 .team-scroll table{min-width:760px}
+table.fixed{table-layout:fixed}
+table.fixed td,table.fixed th{overflow:hidden;text-overflow:ellipsis}
 @media(max-width:1000px){.wrap{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:600px){body{padding:8px}.banner{text-align:left;font-size:14px;margin-bottom:12px}.wrap{gap:14px}.table-scroll table{min-width:420px}.team-scroll table{min-width:760px}.injury-legend{padding:0 4px}}
 table{border-collapse:collapse;width:100%;border:1px solid #000;margin-bottom:18px}
@@ -249,7 +252,7 @@ tr.bench td{padding-bottom:6px}
 '@
 
         $box = {
-            param([string]$Heading, [string[]]$Headers, [string[]]$Aligns, [object[]]$Rows, [int[]]$HtmlColumns = @())
+            param([string]$Heading, [string[]]$Headers, [string[]]$Aligns, [object[]]$Rows, [int[]]$HtmlColumns = @(), [string[]]$ColWidths = @())
             $th = for ($i = 0; $i -lt $Headers.Count; $i++) { "<th class=`"$($Aligns[$i])`">$(& $enc $Headers[$i])</th>" }
             $values = @($Rows | ForEach-Object { foreach ($cell in $_) { $cell } })
             $tr = for ($rowStart = 0; $rowStart -lt $values.Count; $rowStart += $Headers.Count) {
@@ -259,7 +262,13 @@ tr.bench td{padding-bottom:6px}
                 }
                 "<tr>$($td -join '')</tr>"
             }
-            "<div class=`"table-scroll`"><table><thead><tr><th class=`"c`" colspan=`"$($Headers.Count)`">$(& $enc $Heading)</th></tr><tr>$($th -join '')</tr></thead><tbody>$($tr -join '')</tbody></table></div>"
+            $tableClass = ''
+            $colGroup = ''
+            if ($ColWidths.Count -gt 0) {
+                $tableClass = ' class="fixed"'
+                $colGroup = '<colgroup>' + (($ColWidths | ForEach-Object { if ($_) { "<col style=`"width:$_`">" } else { '<col>' } }) -join '') + '</colgroup>'
+            }
+            "<div class=`"table-scroll`"><table$tableClass>$colGroup<thead><tr><th class=`"c`" colspan=`"$($Headers.Count)`">$(& $enc $Heading)</th></tr><tr>$($th -join '')</tr></thead><tbody>$($tr -join '')</tbody></table></div>"
         }
 
         $standing = {
@@ -269,7 +278,7 @@ tr.bench td{padding-bottom:6px}
                 $i++
                 , @("$i. $($e.Name)", (& $f0 $e.Score), (& $f0 $e.GP), (& $avg $e.Score $e.GP))
             }
-            & $box $Heading @($First, 'Score', 'GP', 'Avg') @('l', 'r', 'r', 'r') $rows
+            & $box $Heading @($First, 'Score', 'GP', 'Avg') @('l', 'r', 'r', 'r') $rows @() @('', '70px', '50px', '60px')
         }
 
         $standingOf = { param($prop) $teams | ForEach-Object { $tot = $_.$prop[-1]; [pscustomobject]@{ Name = $_.OwnerName; Score = $tot.Score; GP = $tot.GP } } }
@@ -290,13 +299,14 @@ tr.bench td{padding-bottom:6px}
             $rows = $everyone | Sort-Object $Metric -Descending | Select-Object -First 5 | ForEach-Object {
                 , @($_.Player, $_.Team, (& $f0 $_.GP), (& $f0 $_.$Metric))
             }
-            & $box $Metric @('Player', 'Team', 'GP', $Metric) @('l', 'l', 'r', 'r') $rows
+            & $box $Metric @('Player', 'Team', 'GP', $Metric) @('l', 'l', 'r', 'r') $rows @() @('', '60px', '50px', '70px')
         }
 
         $hdr = 'Player', 'Team', 'Pos', 'Pick', 'GP', 'PTS', 'REB', 'AST', 'TOV', 'Score', 'AVG'
         $al = 'l', 'l', 'l', 'r', 'r', 'r', 'r', 'r', 'r', 'r', 'r'
         $th = (0..10 | ForEach-Object { "<th class=`"$($al[$_])`">$($hdr[$_])</th>" }) -join ''
         $nums = 'GP', 'PTS', 'REB', 'AST', 'TOV', 'Score'
+        $teamColGroup = '<colgroup>' + ((170, 60, 50, 50, 50, 60, 60, 60, 60, 70, 70 | ForEach-Object { "<col style=`"width:${_}px`">" }) -join '') + '</colgroup>'
 
         $owners = foreach ($t in $teams | Sort-Object { if ($_.DraftPosition -gt 0) { $_.DraftPosition } else { [int]::MaxValue } }) {
             $rows = foreach ($row in @($t.TeamA) + @($t.TeamB) + @($t.Bench)) {
@@ -318,7 +328,7 @@ tr.bench td{padding-bottom:6px}
                     "<td class=`"r`">$(& $enc $row.Round)</td>$cells<td class=`"r`">$($row.AVG)</td></tr>"
                 }
             }
-            "<div class=`"team-scroll`"><table><thead><tr class=`"own`"><td colspan=`"8`">$(& $enc $t.OwnerName)</td>" +
+            "<div class=`"team-scroll`"><table class=`"fixed`">$teamColGroup<thead><tr class=`"own`"><td colspan=`"8`">$(& $enc $t.OwnerName)</td>" +
             "<td class=`"r`" colspan=`"3`">Draft Position: $($t.DraftPosition)</td></tr><tr class=`"cols`">$th</tr></thead>" +
             "<tbody>$($rows -join "`n")</tbody></table></div>"
         }
@@ -371,6 +381,25 @@ tr.bench td{padding-bottom:6px}
             $injuredPlayersRows = @(, @('No injured players', '', '', '', ''))
         }
 
+        $sideBets = @()
+        if (-not [string]::IsNullOrWhiteSpace($SideBetsPath) -and (Test-Path -LiteralPath $SideBetsPath -PathType Leaf)) {
+            $sideBetData = Get-Content -LiteralPath $SideBetsPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
+            if ($null -ne $sideBetData.bets) {
+                $sideBets = @($sideBetData.bets)
+            }
+        }
+        $sideBetsRows = if ($sideBets.Count -gt 0) {
+            @(
+                foreach ($sideBet in $sideBets) {
+                    $bettors = @($sideBet.bettors | ForEach-Object { [string] $_ })
+                    , @(($bettors -join ' vs '), [string] $sideBet.bet, [string] $sideBet.wager)
+                }
+            )
+        }
+        else {
+            @(, @('No side bets listed.', '', ''))
+        }
+
         $side = @(
             (& $standing 'Team A Standings' 'Team A Owner' (& $standingOf 'TeamA'))
             (& $standing 'Team B Standings' 'Team B Owner' (& $standingOf 'TeamB'))
@@ -380,6 +409,8 @@ tr.bench td{padding-bottom:6px}
             '<div class="hdr">Injuries</div>'
             (& $box 'Most Injuries' @('Owner', 'Team A', 'Team B', 'Bench', 'Total') @('l', 'r', 'r', 'r', 'r') $mostInjuriesRows)
             (& $box 'Injured Players' @('Owner', 'Player', 'Team', 'GP', 'AVG') @('l', 'l', 'l', 'r', 'r') $injuredPlayersRows @(1))
+            '<div class="hdr">The Ledger</div>'
+            (& $box 'Side Bets' @('Bettors', 'Bet', 'Wager') @('l', 'l', 'l') $sideBetsRows)
         )
 
         $generatedAt = [DateTimeOffset]::Now.ToString('yyyy-MM-dd HH:mm:ss zzz', $inv)

@@ -196,6 +196,28 @@ The dashboard reads assignments from the matching JSON sidecar and joins them to
 
 The dashboard includes standings, team and bench breakdowns, per-game averages, and injury details when available. The scoring value is the sum of points, rebounds, and assists minus twice turnovers.
 
+### Side bets
+
+The dashboard reads side bets from `data/side-bets-<season>.json`. Edit the JSON file for the season before running `Update-FantasyStats.ps1`; the generated dashboard displays bettors, the bet description, and the wager. If the season file is missing or has no bets, the table displays an empty-state row. Bettors are stored as an array and displayed joined with `vs`.
+
+```json
+{
+	"season": 2027,
+	"bets": [
+		{
+			"bettors": ["Jay", "Ed"],
+			"bet": "Team A+B (Centers only)",
+			"wager": "Not specified"
+		},
+		{
+			"bettors": ["Jayden", "Ed"],
+			"bet": "Team A+B",
+			"wager": "Shooting machine rental"
+		}
+	]
+}
+```
+
 ## Live draft dashboard
 
 Start the local browser dashboard:

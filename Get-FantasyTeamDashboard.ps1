@@ -236,6 +236,7 @@ th{text-align:left;font-weight:700}
 .r{text-align:right;font-variant-numeric:tabular-nums}.c{text-align:center}
 .injury-marker{color:#c00}
 .injury-legend{font-size:12px;color:#333;margin:-4px 0 18px;padding:0 8px}
+.generated-at{font-size:11px;color:#666;margin:-12px 0 18px;padding:0 8px}
 tr.own td{background:#000;color:#fff;font-weight:700}
 tr.cols th{border-top:1px solid #000;border-bottom:1px solid #000}
 tr.cols th:first-child{border-left:1px solid #000}
@@ -370,6 +371,7 @@ tr.bench td{padding-bottom:6px}
             (& $box 'Injured Players' @('Owner', 'Player', 'Team', 'GP', 'AVG') @('l', 'l', 'l', 'r', 'r') $injuredPlayersRows)
         )
 
+        $generatedAt = [DateTimeOffset]::Now.ToString('yyyy-MM-dd HH:mm:ss zzz', $inv)
         $html = @"
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
@@ -379,6 +381,7 @@ tr.bench td{padding-bottom:6px}
 <div class="wrap"><div>
 $($owners -join "`n")
 <div class="injury-legend"><span class="injury-marker">*</span> indicates an injured player. Hover over the asterisk for injury details.</div>
+<div class="generated-at">Generated: $generatedAt</div>
 </div><div class="side">
 $($side -join "`n")
 </div></div>

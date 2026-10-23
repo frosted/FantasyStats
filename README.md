@@ -1,133 +1,280 @@
 # FantasyStats
 
-## Get player stats and update the database
+FantasyStats is a PowerShell toolkit for managing NBA and WNBA fantasy drafts, refreshing player statistics, calculating pool standings, and publishing HTML dashboards. Draft data is kept separately from scraped statistics so a stats refresh does not normally erase a season's picks.
 
-From the workspace root, dot-source the script, fetch a league and season from Basketball Reference, then save the results:
+## Contents
+
+- [How it works](#how-it-works)
+- [Requirements](#requirements)
+- [Quick start](#quick-start)
+- [Draft tracking](#draft-tracking)
+- [Refreshing player statistics](#refreshing-player-statistics)
+- [Generating a team dashboard](#generating-a-team-dashboard)
+- [Live draft dashboard](#live-draft-dashboard)
+- [Landing page](#landing-page)
+- [Data files](#data-files)
+- [GitHub Actions and GitHub Pages](#github-actions-and-github-pages)
+- [Troubleshooting](#troubleshooting)
+
+## How it works
+
+The usual season workflow is:
+
+1. Prepare or refresh a season database, then use the draft tracker to set the owner order and assign players.
+2. During the season, refresh stats from Basketball Reference. The update script writes the new stats into the selected league collection and builds a team dashboard.
+3. Build the root landing page so it links to the HTML dashboards in the dashboards directory.
+4. Optionally let GitHub Actions run the refresh and commit generated files on its configured schedule.
+
+| Script | Purpose |
+| --- | --- |
+| `FantasyDraftTracker.ps1` | Windows desktop UI for choosing a database, maintaining the owner order, reviewing/editing player details, and recording draft picks. |
+| `Get-PlayerStats.ps1` | Scraping, cleanup, fantasy-value calculation, and LiteDB persistence functions. |
+| `Update-FantasyStats.ps1` | Fetches stats for one league/season, updates the database, and generates the team dashboard. |
+| `Get-FantasyTeamDashboard.ps1` | Reads draft assignments and player stats, calculates team scores and standings, and renders dashboard HTML. |
+| `Start-DraftDashboard.ps1` | Starts a local browser-based live draft view. |
+| `Update-Index.ps1` | Scans the configured dashboards directory for HTML files and generates the root `index.html`. |
+
+## Requirements
+
+- PowerShell 7.0 or later (`pwsh`).
+- Internet access for the Basketball Reference scraper.
+- The LiteDB 5.0.21 assembly included in `packages/LiteDB.5.0.21`.
+- Windows for `FantasyDraftTracker.ps1`, which uses Windows Forms. The scraping and HTML-generation scripts are PowerShell Core scripts and are also used on the Ubuntu GitHub Actions runner.
+- A browser to view generated HTML or the live draft dashboard.
+
+Run repository commands from the `FantasyStats` directory unless an example says otherwise:
 
 ```powershell
-. .\FantasyStats\Get-PlayerStats.ps1
+Set-Location .\FantasyStats
+$PSVersionTable.PSVersion
+```
 
-$league = 'NBA' # Use 'WNBA' for women's stats.
+## Quick start
+
+Refresh the default NBA season and generate its team dashboard:
+
+```powershell
+pwsh -File .\Update-FantasyStats.ps1
+```
+
+Choose a specific season and league:
+
+```powershell
+pwsh -File .\Update-FantasyStats.ps1 -Season 2027 -League NBA
+pwsh -File .\Update-FantasyStats.ps1 -Season 2027 -League WNBA
+```
+
+The default season is the ending year of the season: from October onward, the default is the current year plus one; otherwise it is the current year. The default league is NBA. The NBA update gathers roster players, while the WNBA update uses the standard league stats fetch.
+
+## Draft tracking
+
+Launch the desktop tracker on Windows:
+
+```powershell
+pwsh -File .\FantasyDraftTracker.ps1
+```
+
+The tracker can use another database directory or a different maximum draft length:
+
+```powershell
+pwsh -File .\FantasyDraftTracker.ps1 -DatabaseDirectory .\data -MaximumRounds 13
+```
+
+Use the database selector to choose the season and league collection. Add participants to the draft order, move them into the desired order, and use the Draft action to assign the selected player to the owner on the clock. Player details can be corrected in the tracker when needed, such as team or position changes. NBA and WNBA collections are supported.
+
+The draft follows a snake order. The default maximum is 13 rounds. The available position counts are based on eligible C/F/G players among the top `MaximumRounds x owner count` candidates by value. Picks remove players from the available pool; lower-ranked players do not automatically replace them in those counts.
+
+Assignments and the owner order are saved as a JSON sidecar. The tracker can create a sidecar for a new draft and migrate older embedded draft fields when opening a legacy database. Back up databases and sidecars before making bulk edits or running migration-sensitive workflows.
+
+## Refreshing player statistics
+
+`Update-FantasyStats.ps1` calls the functions in `Get-PlayerStats.ps1`, saves the selected league collection, then creates a dashboard unless `-SkipDashboard` is specified.
+
+Examples:
+
+```powershell
+# Refresh NBA 2027 and write the default dashboard.
+./Update-FantasyStats.ps1 -Season 2027 -League NBA
+
+# Refresh WNBA 2027.
+./Update-FantasyStats.ps1 -Season 2027 -League WNBA
+
+# Refresh stats but do not generate HTML.
+./Update-FantasyStats.ps1 -Season 2027 -League NBA -SkipDashboard
+
+# Choose explicit output locations.
+./Update-FantasyStats.ps1 `
+	-Season 2027 `
+	-League NBA `
+	-DatabaseDirectory .\data `
+	-DashboardPath .\Dashboards\TeamDashboard_2027.html
+```
+
+The default database path is `data/<season>.db`. NBA and WNBA are separate collections in that file, so updating one league does not replace the other. Each save transaction replaces the selected league's collection; it is a refresh, not a merge. If no valid players are returned, the update script stops instead of replacing the collection with an empty result.
+
+To call the lower-level functions directly, dot-source the scraper module:
+
+```powershell
+. .\Get-PlayerStats.ps1
+
 $season = 2027
-$stats = @(Get-PlayerStats -League $league -Season $season)
-if ($stats.Count -eq 0) {
+$league = 'NBA'
+$players = @(Get-PlayerStats -League $league -Season $season)
+if ($players.Count -eq 0) {
 	throw "No player stats were returned for $league $season; database was not updated."
 }
 
-$saveResult = Save-PlayerStatsToLiteDb -Players $stats -League $league -Season $season
+$saveResult = Save-PlayerStatsToLiteDb `
+	-Players $players `
+	-League $league `
+	-Season $season
 $saveResult | Format-List
-
-@(2020..2027) | % { $stats = Get-PlayerStats -League NBA -Season $_; $saveResult = Save-PlayerStatsToLiteDb -Players $stats -League NBA -Season $_; $saveResult} 
-
-@(2020..2027) | % { $stats = Get-PlayerStats -League WNBA -Season $_; $saveResult = Save-PlayerStatsToLiteDb -Players $stats -League WNBA -Season $_; $saveResult} 
 ```
 
-To include every NBA player listed on a team roster, including players who have not appeared in a game, collect the season rosters and injury reports before saving:
+For NBA, `Get-AllPlayersStats` includes roster players who have not appeared in a game and adds injury details when available:
 
 ```powershell
-. .\FantasyStats\Get-PlayerStats.ps1
+. .\Get-PlayerStats.ps1
 
 $season = 2027
-$allPlayers = @(Get-AllPlayersStats -Season $season)
-if ($allPlayers.Count -eq 0) {
+$players = @(Get-AllPlayersStats -Season $season)
+if ($players.Count -eq 0) {
 	throw "No NBA roster players were returned for $season; database was not updated."
 }
 
-$saveResult = Save-PlayerStatsToLiteDb -Players $allPlayers -League NBA -Season $season
-$saveResult | Format-List
+Save-PlayerStatsToLiteDb -Players $players -League NBA -Season $season
 ```
 
-`Get-AllPlayersStats` gathers teams from both conference standings, combines their roster pages with season totals, and marks roster players found in the injury report with `injured = $true` and an `injury_note`. Roster players without season totals are still included with zero-valued statistics. Saving replaces the entire NBA collection for that season, just like `Get-PlayerStats` data.
-
-By default, stats are stored in `FantasyStats/data/<season>.db`, in a collection named for the league. NBA and WNBA data for the same season can share one database file. The result reports the database path, collection, and number of saved players. To use another directory, pass `-DatabaseDirectory` to `Save-PlayerStatsToLiteDb`.
-
-Saving replaces the selected league's entire collection transactionally; it does not merge with existing records. Draft assignments are stored separately in `FantasyStats/data/<season>.json`, so refreshing stats does not clear them as long as the player's LiteDB `_id` remains the same. Saving one league does not replace the other league's collection in the same season database.
-
-To refresh WNBA stats for several seasons, for example:
+Refresh several seasons, skipping any season for which the source returns no rows:
 
 ```powershell
-@(2020..2026) | ForEach-Object {
-	$season = $_
-	$stats = @(Get-PlayerStats -League WNBA -Season $season)
-	if ($stats.Count -eq 0) {
-		Write-Warning "No WNBA stats returned for $season; skipping database update."
-		return
+. .\Get-PlayerStats.ps1
+
+foreach ($season in 2020..2027) {
+	$players = @(Get-PlayerStats -League WNBA -Season $season)
+	if ($players.Count -eq 0) {
+		Write-Warning "No WNBA stats returned for $season; skipping."
+		continue
 	}
 
-	Save-PlayerStatsToLiteDb -Players $stats -League WNBA -Season $season
+	Save-PlayerStatsToLiteDb -Players $players -League WNBA -Season $season
 }
 ```
 
-`Get-PlayerStats` returns traded-player-cleaned rows with a numeric `value` field calculated as `pts + trb + ast - (tov * 2)` and an `elig_pos` field defaulted to the uppercase final character of `pos`. Blank stat values are treated as zero. `Save-PlayerStatsToLiteDb` repeats cleanup and calculation before BSON conversion, skips rows where both `team` and `pos` are blank, and leaves the database unchanged if no rows qualify. It excludes `owner`, `draft_pos`, and the legacy `drafted` field from player documents. LiteDB 5.0.21 is included under `packages/LiteDB.5.0.21`.
+Player value is calculated as `PTS + REB + AST - (2 x TOV)`. The `elig_pos` value is derived from the final position character when no explicit eligibility is present. Traded-player rows are cleaned before saving, blank numeric stats are treated as zero, and rows without both a team and position are skipped. Player names are currently used as LiteDB document IDs, so changing a player's name can prevent an existing draft assignment from matching that player after a refresh.
 
-The draft tracker includes an editable draft-order list under Player Details. Owner order and player assignments are stored in a JSON sidecar next to each database. Opening a season database with the tracker creates the sidecar and migrates legacy `owner`, `draft_pos`, and `draft_owners` data the first time. Position availability counts C/F/G eligibility among the top `MaximumRounds × owner count` draft candidates by Value; drafted players reduce those counts without lower-ranked players replacing them.
+## Generating a team dashboard
 
-When drafting the upcoming season from a database, the tracker names its sidecar for that next season: opening `2026.db` uses `2027.json`. If a same-stem legacy JSON file exists, the tracker carries its data forward. Dashboards instead always load the same-stem file as the selected database: `2027.db` uses `2027.json`. `player_id` is the LiteDB document `_id` (currently the player name); `draft_position` is the overall pick number. The collection identifies which league the assignment belongs to:
-
-```json
-{
-	"version": 1,
-	"owners": ["Owner One", "Owner Two"],
-	"assignments": [
-		{
-			"collection": "NBA",
-			"player_id": "A.J. Green",
-			"owner": "Owner One",
-			"draft_position": 1,
-			"elig_pos": "G"
-		},
-		{
-			"collection": "WNBA",
-			"player_id": "A'ja Wilson",
-			"owner": "Owner Two",
-			"draft_position": 1,
-			"elig_pos": "F"
-		}
-	]
-}
-```
-
-## Create a team dashboard
-
-From the workspace root, dot-source the dashboard script, then read the season database and pipe its team scores to the HTML generator:
+The update script generates the default dashboard automatically. To generate it directly, dot-source `Get-FantasyTeamDashboard.ps1` and pipe the scores to the HTML writer:
 
 ```powershell
-. .\FantasyStats\Get-FantasyTeamDashboard.ps1
+. .\Get-FantasyTeamDashboard.ps1
 
 $season = 2027
-$databasePath = ".\FantasyStats\data\$($season).db"
-$dashboardPath = ".\FantasyStats\Dashboards\TeamDashboard_$($season).html"
+$databasePath = ".\data\$season.db"
+$dashboardPath = ".\Dashboards\TeamDashboard_$season.html"
+
 Get-FantasyTeamScoreFromDatabase -DatabasePath $databasePath -Collection NBA |
-	New-FantasyWebDashboard -Path $dashboardPath -Title "Chumpball $($season-1) - $($season)"
+	New-FantasyWebDashboard `
+		-Path $dashboardPath `
+		-Title "Chumpball $($season - 1) - $season"
 ```
 
-Keep the matching `2027.json` sidecar next to `2027.db`. The dashboard joins assignments from that file to player stats using `player_id`, groups by owner, and excludes unowned players. Change the database path and collection (`NBA` or `WNBA`) for the season and league you want. The script creates the HTML file at the specified path; open it in a browser to view the dashboard. Only owners with exactly 13 drafted players are included. Each included roster must also have enough C, F, and G eligibility to fill the two team lineups. Use the optional `-Owner 'Owner Name'` parameter on `Get-FantasyTeamScoreFromDatabase` to include only selected owners.
+Choose a league and optionally restrict the dashboard to selected owners:
+
+```powershell
+Get-FantasyTeamScoreFromDatabase `
+	-DatabasePath .\data\2027.db `
+	-Collection WNBA `
+	-Owner 'Owner One', 'Owner Two' |
+	New-FantasyWebDashboard `
+		-Path .\Dashboards\WNBA_TeamDashboard_2027.html `
+		-Title 'WNBA Chumpball 2026 - 2027'
+```
+
+The dashboard reads assignments from the matching JSON sidecar and joins them to player stats by `player_id`. Unassigned players are not included in owner scores. An owner must have exactly 13 drafted players and enough position eligibility to fill two lineups, each with one C, two F, and two G slots; the remaining three players are the bench. Owners who do not meet these rules are skipped or produce a clear position-availability error.
+
+The dashboard includes standings, team and bench breakdowns, per-game averages, and injury details when available. The scoring value is the sum of points, rebounds, and assists minus twice turnovers.
 
 ## Live draft dashboard
 
-Start the local dashboard server from the workspace root:
+Start the local browser dashboard:
 
 ```powershell
-.\FantasyStats\Start-DraftDashboard.ps1
+pwsh -File .\Start-DraftDashboard.ps1
 ```
 
-Then open `http://127.0.0.1:8765/` in a browser. The page refreshes every two seconds, groups drafted players by owner in draft order, and omits stat columns. It supports selecting a season database and league collection, and reads each season's assignments from its matching JSON sidecar.
-
-## Querying a database
-
-Open the season database and choose the league collection. Documents use the player name as `_id`:
+Open `http://127.0.0.1:8765/`. To use a different port:
 
 ```powershell
-$liteDbAssembly = Resolve-Path '.\FantasyStats\packages\LiteDB.5.0.21\lib\netstandard2.0\LiteDB.dll'
+pwsh -File .\Start-DraftDashboard.ps1 -Port 9000
+```
+
+The page refreshes every two seconds, lets you select a season database and NBA/WNBA collection, and displays the current owner assignments in draft order. This is a local server; screen-sharing the browser is a simple way to show picks to remote participants. Stop the server with `Ctrl+C` in its PowerShell window.
+
+## Landing page
+
+Run the index generator from the repository root:
+
+```powershell
+pwsh -File .\Update-Index.ps1
+```
+
+It scans the `Dashboards` directory for `.html` files, creates a card for each dashboard, and writes `index.html` in the repository root. Add a generated dashboard to that directory and rerun the script to include it in the landing page.
+
+**Linux path capitalization:** the update scripts and workflow refer to `Dashboards/`, while the checked-in directory in this repository is currently named `dashboards/`. Windows treats those names as equivalent, but Ubuntu does not. Before relying on the GitHub Actions workflow, rename the tracked directory to `Dashboards/` or change every script and workflow reference to use `dashboards/` consistently.
+
+## Data files
+
+### Season databases
+
+Each `data/<season>.db` file is a LiteDB database. It can contain an `NBA` and a `WNBA` collection for the same season. Player documents contain the stats used by the dashboard; draft ownership is stored separately.
+
+### Draft sidecars
+
+Each draft JSON file stores the ordered owners and player assignments. A representative sidecar looks like this:
+
+```json
+{
+  "version": 1,
+  "owners": ["Owner One", "Owner Two"],
+  "assignments": [
+	{
+	  "collection": "NBA",
+	  "player_id": "A.J. Green",
+	  "owner": "Owner One",
+	  "draft_position": 1,
+	  "elig_pos": "G"
+	},
+	{
+	  "collection": "WNBA",
+	  "player_id": "A'ja Wilson",
+	  "owner": "Owner Two",
+	  "draft_position": 1,
+	  "elig_pos": "F"
+	}
+  ]
+}
+```
+
+`player_id` matches the LiteDB document `_id` (currently the player name). `draft_position` is the overall pick number, and `collection` distinguishes leagues. In the tracker, drafting the upcoming season from `2026.db` uses `2027.json`; dashboard generation for `2027.db` uses the same-stem `2027.json`. Keep the correct sidecar alongside the corresponding season database when copying or restoring data.
+
+The tracker migrates older `owner`, `draft_pos`, `drafted`, and `draft_owners` data into the sidecar when it opens a legacy database. The scraper excludes those legacy fields from refreshed player records.
+
+### Query a database
+
+This example loads LiteDB, reads one player, and returns NBA point leaders. Replace the collection with `WNBA` to query that league:
+
+```powershell
+$liteDbAssembly = Resolve-Path '.\packages\LiteDB.5.0.21\lib\netstandard2.0\LiteDB.dll'
 Add-Type -Path $liteDbAssembly
 
-$databasePath = Resolve-Path '.\FantasyStats\data\2027.db'
+$databasePath = Resolve-Path '.\data\2027.db'
 $database = [LiteDB.LiteDatabase]::new($databasePath)
 try {
-	$nba = $database.GetCollection[LiteDB.BsonDocument]('NBA')
+	$players = $database.GetCollection[LiteDB.BsonDocument]('NBA')
 
-	# Look up one player by document ID.
-	$player = $nba.FindById('A.J. Green')
+	$player = $players.FindById('A.J. Green')
 	if ($null -ne $player) {
 		[pscustomobject]@{
 			Player = $player['player'].AsString
@@ -136,23 +283,38 @@ try {
 		}
 	}
 
-	# Find NBA players with more than 2,000 points.
-	$leaders = $nba.Find([LiteDB.Query]::GT('pts', [LiteDB.BsonValue]::new([long] 2000)))
+	$leaders = $players.Find(
+		[LiteDB.Query]::GT('pts', [LiteDB.BsonValue]::new([long] 2000))
+	)
 	$leaders | ForEach-Object {
 		[pscustomobject]@{
 			Player = $_['player'].AsString
 			Points = $_['pts'].AsInt64
 		}
 	} | Sort-Object Points -Descending
-
-	# Use 'WNBA' instead to query the WNBA collection in the same file.
-	$wnba = $database.GetCollection[LiteDB.BsonDocument]('WNBA')
 }
 finally {
 	$database.Dispose()
 }
 ```
 
-The stat fields are BSON values. Use accessors such as `.AsString`, `.AsInt64`, or `.AsDouble` to read them as PowerShell values. The query above uses a numeric BSON value so `pts` is compared numerically.
+LiteDB values are BSON values; use typed accessors such as `.AsString`, `.AsInt64`, or `.AsDouble` when reading them.
 
-Pass `-DatabaseDirectory` to `Save-PlayerStatsToLiteDb` to store the database files in a different directory.
+## GitHub Actions and GitHub Pages
+
+The workflow is defined in `.github/workflows/update-stats.yml`. It supports scheduled runs and manual `workflow_dispatch`. The current cron expression runs every six hours (`0 */6 * * *`); change the cron expression if a once-daily run is preferred.
+
+The job runs on `ubuntu-latest` with PowerShell Core, refreshes stats and the team dashboard, runs `Update-Index.ps1`, and stages `index.html`, `Dashboards/`, and `data/`. It has `contents: write` permission and commits generated changes as `github-actions[bot]` only when there is a diff to commit.
+
+The workflow pushes generated files to the repository; it does not contain a separate GitHub Pages deployment action. Configure Pages in the repository settings to publish from the branch and folder where these generated files are committed. The first publish can take a few minutes. Keep scrape requests and the configured schedule within the source site's acceptable usage.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| No players returned or a scrape fails | Confirm internet access and that Basketball Reference is reachable; rerun later if the source is unavailable. The database is not replaced when the update returns no valid players. |
+| Dashboard reports a missing sidecar | Open the database in `FantasyDraftTracker.ps1` to create or migrate its draft JSON, and check that the sidecar season matches the database/dashboard. |
+| Owner is omitted from standings | Confirm the owner has exactly 13 assignments and the roster can fill the two C/F/G lineups. |
+| Dashboard or index folder is not found on Ubuntu | Check the exact capitalization of `Dashboards` versus `dashboards`; Linux paths are case-sensitive. |
+| LiteDB assembly cannot be loaded | Confirm `packages/LiteDB.5.0.21/lib/netstandard2.0/LiteDB.dll` is present and PowerShell 7 or later is running. |
+| The generated site does not update | Check the Actions run and commit permissions, then verify GitHub Pages is configured to publish from the branch/folder receiving the generated files. |

@@ -1,0 +1,651 @@
+{
+  "version": 1,
+  "owners": [
+    "Eymard",
+    "Jay",
+    "Ed",
+    "Shawn",
+    "Art",
+    "Chris",
+    "Rhon"
+  ],
+  "assignments": [
+    {
+      "collection": "NBA",
+      "player_id": "Aaron Gordon",
+      "owner": "Ed",
+      "draft_position": 31,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Al Horford",
+      "owner": "Art",
+      "draft_position": 52,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Andre Drummond",
+      "owner": "Jay",
+      "draft_position": 27,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Andrew Wiggins",
+      "owner": "Ed",
+      "draft_position": 45,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Anthony Davis",
+      "owner": "Art",
+      "draft_position": 5,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Ben Simmons",
+      "owner": "Eymard",
+      "draft_position": 71,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Blake Griffin",
+      "owner": "Chris",
+      "draft_position": 23,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Bradley Beal",
+      "owner": "Rhon",
+      "draft_position": 35,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Brandon Ingram",
+      "owner": "Shawn",
+      "draft_position": 67,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Brook Lopez",
+      "owner": "Chris",
+      "draft_position": 34,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Carmelo Anthony",
+      "owner": "Art",
+      "draft_position": 47,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Chris Paul",
+      "owner": "Art",
+      "draft_position": 24,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "CJ McCollum",
+      "owner": "Eymard",
+      "draft_position": 28,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Clint Capela",
+      "owner": "Ed",
+      "draft_position": 59,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "D'Angelo Russell",
+      "owner": "Rhon",
+      "draft_position": 77,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Damian Lillard",
+      "owner": "Chris",
+      "draft_position": 9,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Danilo Gallinari",
+      "owner": "Rhon",
+      "draft_position": 64,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Dario Saric",
+      "owner": "Art",
+      "draft_position": 75,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Deandre Jordan",
+      "owner": "Shawn",
+      "draft_position": 18,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Demar Derozan",
+      "owner": "Ed",
+      "draft_position": 12,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Demarcus Cousins",
+      "owner": "Rhon",
+      "draft_position": 8,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Dennis Schroder",
+      "owner": "Art",
+      "draft_position": 38,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Devin Booker",
+      "owner": "Jay",
+      "draft_position": 41,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Dirk Nowitzki",
+      "owner": "Shawn",
+      "draft_position": 60,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Draymond Green",
+      "owner": "Eymard",
+      "draft_position": 42,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Dwight Howard",
+      "owner": "Chris",
+      "draft_position": 48,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Dwyane Wade",
+      "owner": "Shawn",
+      "draft_position": 74,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Elfrid Payton",
+      "owner": "Ed",
+      "draft_position": 54,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Enes Kanter",
+      "owner": "Shawn",
+      "draft_position": 53,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Eric Bledsoe",
+      "owner": "Chris",
+      "draft_position": 37,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Eric Gordon",
+      "owner": "Eymard",
+      "draft_position": 84,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Ersan Ilyasova",
+      "owner": "Art",
+      "draft_position": 80,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Gary Harris",
+      "owner": "Art",
+      "draft_position": 89,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "George Hill",
+      "owner": "Chris",
+      "draft_position": 90,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Giannis Antetokounmpo",
+      "owner": "Shawn",
+      "draft_position": 4,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Goran Dragic",
+      "owner": "Shawn",
+      "draft_position": 39,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Gordon Hayward",
+      "owner": "Jay",
+      "draft_position": 30,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Harrison Barnes",
+      "owner": "Rhon",
+      "draft_position": 49,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Hassan Whiteside",
+      "owner": "Jay",
+      "draft_position": 13,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "James Harden",
+      "owner": "Eymard",
+      "draft_position": 1,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jamychal Green",
+      "owner": "Ed",
+      "draft_position": 87,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jeff Teague",
+      "owner": "Art",
+      "draft_position": 61,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jeremy Lin",
+      "owner": "Eymard",
+      "draft_position": 85,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jimmy Butler",
+      "owner": "Jay",
+      "draft_position": 16,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "JJ Redick",
+      "owner": "Shawn",
+      "draft_position": 81,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Joel Embiid",
+      "owner": "Jay",
+      "draft_position": 55,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "John Wall",
+      "owner": "Ed",
+      "draft_position": 17,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jonas Valanciunas",
+      "owner": "Rhon",
+      "draft_position": 78,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jrue Holiday",
+      "owner": "Chris",
+      "draft_position": 76,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Julius Randle",
+      "owner": "Eymard",
+      "draft_position": 70,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Justin Holiday",
+      "owner": "Jay",
+      "draft_position": 58,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Jusuf Nurkic",
+      "owner": "Art",
+      "draft_position": 66,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Karl-Anthony Towns",
+      "owner": "Ed",
+      "draft_position": 3,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kawhi Leonard",
+      "owner": "Shawn",
+      "draft_position": 11,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kelly Oubre",
+      "owner": "Jay",
+      "draft_position": 86,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kemba Walker",
+      "owner": "Chris",
+      "draft_position": 20,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kevin Durant",
+      "owner": "Rhon",
+      "draft_position": 7,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kevin Love",
+      "owner": "Ed",
+      "draft_position": 26,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Khris Middleton",
+      "owner": "Rhon",
+      "draft_position": 50,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Klay Thompson",
+      "owner": "Rhon",
+      "draft_position": 36,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kristaps Porzingis",
+      "owner": "Rhon",
+      "draft_position": 22,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kyle Lowry",
+      "owner": "Shawn",
+      "draft_position": 25,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Kyrie Irving",
+      "owner": "Rhon",
+      "draft_position": 21,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Lamarcus Aldridge",
+      "owner": "Jay",
+      "draft_position": 44,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Lebron James",
+      "owner": "Chris",
+      "draft_position": 6,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Lonzo Ball",
+      "owner": "Rhon",
+      "draft_position": 63,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Marc Gasol",
+      "owner": "Shawn",
+      "draft_position": 32,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Marcin Gortat",
+      "owner": "Chris",
+      "draft_position": 62,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Mike Conley",
+      "owner": "Eymard",
+      "draft_position": 43,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Myles Turner",
+      "owner": "Eymard",
+      "draft_position": 29,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Nikola Jokic",
+      "owner": "Eymard",
+      "draft_position": 15,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Nikola Mirotic",
+      "owner": "Ed",
+      "draft_position": 82,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Nikola Vucevic",
+      "owner": "Art",
+      "draft_position": 33,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Norman Powell",
+      "owner": "Jay",
+      "draft_position": 83,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Otto Porter",
+      "owner": "Eymard",
+      "draft_position": 56,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Paul George",
+      "owner": "Art",
+      "draft_position": 19,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Paul Millsap",
+      "owner": "Ed",
+      "draft_position": 40,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Reggie Jackson",
+      "owner": "Jay",
+      "draft_position": 69,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Ricky Rubio",
+      "owner": "Ed",
+      "draft_position": 73,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Rudy Gobert",
+      "owner": "Eymard",
+      "draft_position": 14,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Russell Westbrook",
+      "owner": "Jay",
+      "draft_position": 2,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Serge Ibaka",
+      "owner": "Eymard",
+      "draft_position": 57,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Stephen Curry",
+      "owner": "Art",
+      "draft_position": 10,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Terrence Ross",
+      "owner": "Shawn",
+      "draft_position": 88,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Tim Hardaway",
+      "owner": "Ed",
+      "draft_position": 68,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Tobias Harris",
+      "owner": "Chris",
+      "draft_position": 65,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Trevor Ariza",
+      "owner": "Jay",
+      "draft_position": 72,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Victor Oladipo",
+      "owner": "Shawn",
+      "draft_position": 46,
+      "elig_pos": "G"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Willie Cauley-Stein",
+      "owner": "Rhon",
+      "draft_position": 91,
+      "elig_pos": "C"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Wilson Chandler",
+      "owner": "Chris",
+      "draft_position": 79,
+      "elig_pos": "F"
+    },
+    {
+      "collection": "NBA",
+      "player_id": "Zach Randolph",
+      "owner": "Chris",
+      "draft_position": 51,
+      "elig_pos": "F"
+    }
+  ]
+}

@@ -32,6 +32,11 @@
       "wager": "Master Steaks"
     },
     {
+      "bettors": ["Rhon", "Jay"],
+      "bet": "Team A+B",
+      "wager": "Master Steaks"
+    },
+    {
       "bettors": ["Jun", "Jay"],
       "bet": "Team A",
       "wager": "Master Steaks"
